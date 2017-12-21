@@ -11,24 +11,18 @@ Genetic Algorithm
 -----------------
 1. Initialize a population of N elements with random genetic material (We need enough variation)
 
-2. Evaluate the fitness value of each element in the population (fitness function) and build a mating pool.
-Example:
-target: "aligator"
-population: 3
-element #1: "aliharit" - fitness value = 7 (70% selection probability)
-element #2: "gfghjkuf" - fitness value = 1 (10% selection probability)
-element #3: "hostgato" - fitness value = 4 (40% selection probability)
+2. Evaluate the fitness value of each element in the population (fitness function).
 
-3. Evolution
+3. Build a mating pool.
+
+4. Evolution
 a) Pick 2 parents. The higher the fitness value of an element the more likely the element is to be selected.
 b) Create new element with crossover and mutation.
-Crossover: Take half genetic information from one parent and half genetic information from the other:
-alih|arit host|gato -> crossover -> alihgato (fitness value = 7)
-Mutation: Mutate the child's genetic information based on a given probability:
-alihgato -> mutate -> blihgato
+Crossover: Take half genetic information from one parent and half genetic information from the other.
+Mutation: Mutate the child's genetic information based on a given probability.
 c) Add child to the new population.
 
-4. Replace the old population with the new population and return to Step 2.
+5. Replace the old population with the new population and return to Step 2.
 */
 
 // Getting a random integer between two values, inclusive
@@ -41,7 +35,7 @@ function getRandomIntInclusive(min, max) {
 // Individual class
 class Individual {
     constructor (length) {
-        this.score = 0;
+        this.fitness = 0;
         this.phrase = "";
         this.length = length;
         for (var i = 0; i < length; i++) {
@@ -53,19 +47,21 @@ class Individual {
         return this.phrase;
     }
     getFitness() {
-        return this.score;
+        return this.fitness;
     }
     // Setters
     setGenotype(phrase) {
         this.phrase = phrase;
     }
     setFitness(target) {
-        this.score = 0;
+        this.fitness = 0;
         for (var i = 0; i < this.length; i++) {
             if (this.phrase.charAt(i) === target.charAt(i)) {
-                this.score += 1;
+                this.fitness += 1;
             }
         }
+        // Fitness is a percentage
+        this.fitness = this.fitness/target.length;
     }
 }
 
@@ -74,9 +70,9 @@ class Population {
     constructor (size, target) {
         this.target = target;
         this.size = size;
-        this.individuals = new Array();
+        this.individuals = [];
         for (var i = 0; i < size; i++) {
-            this.individuals[i] = new Individual(6);
+            this.individuals.push(new Individual(target.length));
         }
     }
     // Method
@@ -91,16 +87,31 @@ class Population {
 // 1. Create a population of N elements, each with randomly generated genetic material.
 var population = new Population(10, "marios");
 
-// Print population (genotype)
+/*
+// Print population (genotypes)
 for (var i = 0; i < population.size; i++) {
     console.log(population.individuals[i].getGenotype());
 }
+*/
 
 // 2. Call the fitness function for each member of the population.
 population.draw();
 
-// Print population (score)
+/*
+// Print population (fitness values)
 for (var i = 0; i < population.size; i++) {
     console.log(population.individuals[i].getFitness());
 }
+*/
 
+// 3. Build a mating pool.
+var matePool = [];
+
+for (var i = 0; i < population.size; i++) {
+    var n = Math.round(population.individuals[i].getFitness() * 100);
+    for (var j = 0; j < n; j++) {
+        matePool.push(population.individuals[i]);
+    }
+}
+
+// 4. Evolution
