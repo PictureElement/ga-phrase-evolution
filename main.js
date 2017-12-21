@@ -41,22 +41,34 @@ function getRandomIntInclusive(min, max) {
 // Individual class
 class Individual {
     constructor (length) {
+        this.score = 0;
         this.phrase = "";
         this.length = length;
         for (var i = 0; i < length; i++) {
             this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128));
         }
     }
-    // Getter
+    // Getters
     get genotype() {
         return this.phrase;
     }
+    get fitnessValue() {
+        return this.score;
+    }
+    // Setters
+    set genotype(phrase) {
+        this.phrase = phrase;
+    }
+    set fitnessValue(score) {
+        this.score = score;
+    }
 }
 
-// GA class
+// Population class
 class Population {
-    constructor (size) {
+    constructor (size, target) {
         this.size = size;
+        this.target = "To be or not to be";
         this.individuals = new Array();
         for (var i = 0; i < size; i++) {
             this.individuals[i] = new Individual(6);
