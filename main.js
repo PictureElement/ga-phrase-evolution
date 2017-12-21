@@ -38,8 +38,8 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Member class
-class member {
+// Individual class
+class Individual {
     constructor (length) {
         this.phrase = "";
         this.length = length;
@@ -48,14 +48,28 @@ class member {
         }
     }
     // Getter
-    get genome() {
+    get genotype() {
         return this.phrase;
     }
 }
 
-// Create a population of 100 members
-var population = new Array();  
-for (i = 0; i < 100; i++) {  
-    population[i] = new member(6);  
-    console.log(population[i].genome + "\n");
+// GA class
+class Population {
+    constructor (size) {
+        this.size = size;
+        this.individuals = new Array();
+        for (var i = 0; i < size; i++) {
+            this.individuals[i] = new Individual(6);
+        }
+    }
+    // Getter
+    get population() {
+        for (var i = 0; i < this.size; i++) {
+            console.log(this.individuals[i].genotype);
+        }
+    }
 }
+
+// 1. Create a population of N elements, each with randomly generated genetic material
+var population = new Population(100);
+population.population;
