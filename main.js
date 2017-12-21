@@ -45,43 +45,62 @@ class Individual {
         this.phrase = "";
         this.length = length;
         for (var i = 0; i < length; i++) {
-            this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128));
+            this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128)); //32-128
         }
     }
     // Getters
-    get genotype() {
+    getGenotype() {
         return this.phrase;
     }
-    get fitnessValue() {
+    getFitness() {
         return this.score;
     }
     // Setters
-    set genotype(phrase) {
+    setGenotype(phrase) {
         this.phrase = phrase;
     }
-    set fitnessValue(score) {
-        this.score = score;
+    setFitness(target) {
+        this.score = 0;
+        for (var i = 0; i < this.length; i++) {
+            if (this.phrase.charAt(i) === target.charAt(i)) {
+                this.score += 1;
+            }
+        }
     }
 }
 
 // Population class
 class Population {
     constructor (size, target) {
+        this.target = target;
         this.size = size;
-        this.target = "To be or not to be";
         this.individuals = new Array();
         for (var i = 0; i < size; i++) {
             this.individuals[i] = new Individual(6);
         }
     }
-    // Getter
-    get population() {
+    // Method
+    draw() {
+        console.log("foo");
         for (var i = 0; i < this.size; i++) {
-            console.log(this.individuals[i].genotype);
+            this.individuals[i].setFitness(this.target);
         }
     }
 }
 
-// 1. Create a population of N elements, each with randomly generated genetic material
-var population = new Population(100);
-population.population;
+// 1. Create a population of N elements, each with randomly generated genetic material.
+var population = new Population(10, "marios");
+
+// Print population (genotype)
+for (var i = 0; i < population.size; i++) {
+    console.log(population.individuals[i].getGenotype());
+}
+
+// 2. Call the fitness function for each member of the population.
+population.draw();
+
+// Print population (score)
+for (var i = 0; i < population.size; i++) {
+    console.log(population.individuals[i].getFitness());
+}
+
