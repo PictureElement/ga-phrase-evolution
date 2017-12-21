@@ -44,7 +44,7 @@ class member {
         this.phrase = "";
         this.length = length;
         for (var i = 0; i < length; i++) {
-            this.phrase = this.pharse + getRandomIntInclusive(32, 128);
+            this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128));
         }
     }
     // Getter
@@ -57,5 +57,5 @@ class member {
 var population = new Array();  
 for (i = 0; i < 100; i++) {  
     population[i] = new member(6);  
-    console.log(population[i].genome());
+    console.log(population[i].genome + "\n");
 }
