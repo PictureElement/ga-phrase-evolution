@@ -30,3 +30,32 @@ c) Add child to the new population.
 
 4. Replace the old population with the new population and return to Step 2.
 */
+
+// Getting a random integer between two values, inclusive
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Member class
+class member {
+    constructor (length) {
+        this.phrase = "";
+        this.length = length;
+        for (var i = 0; i < length; i++) {
+            this.phrase = this.pharse + getRandomIntInclusive(32, 128);
+        }
+    }
+    // Getter
+    get genome() {
+        return this.phrase;
+    }
+}
+
+// Create a population of 100 members
+var population = new Array();  
+for (i = 0; i < 100; i++) {  
+    population[i] = new member(6);  
+    console.log(population[i].genome());
+}
