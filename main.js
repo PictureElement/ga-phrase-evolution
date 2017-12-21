@@ -71,15 +71,23 @@ class Population {
         this.target = target;
         this.size = size;
         this.individuals = [];
+        this.matePool = [];
         for (var i = 0; i < size; i++) {
             this.individuals.push(new Individual(target.length));
         }
     }
     // Method
     draw() {
-        console.log("foo");
         for (var i = 0; i < this.size; i++) {
             this.individuals[i].setFitness(this.target);
+        }
+    }
+    buildMatePool() {
+        for (var i = 0; i < this.size; i++) {
+            var n = Math.round(this.individuals[i].getFitness() * 100);
+            for (var j = 0; j < n; j++) {
+                this.matePool.push(this.individuals[i]);
+            }
         }
     }
 }
@@ -104,14 +112,5 @@ for (var i = 0; i < population.size; i++) {
 }
 */
 
-// 3. Build a mating pool.
-var matePool = [];
-
-for (var i = 0; i < population.size; i++) {
-    var n = Math.round(population.individuals[i].getFitness() * 100);
-    for (var j = 0; j < n; j++) {
-        matePool.push(population.individuals[i]);
-    }
-}
-
-// 4. Evolution
+// 3. Build the mating pool.
+population.buildMatePool();
