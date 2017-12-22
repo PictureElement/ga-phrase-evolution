@@ -15,7 +15,7 @@ Genetic Algorithm
 
 3. Build a mating pool.
 
-4. Evolution
+4. Reproduction
 a) Pick 2 parents. The higher the fitness value of an element the more likely the element is to be selected.
 b) Create new element with crossover and mutation.
 Crossover: Take half genetic information from one parent and half genetic information from the other.
@@ -34,28 +34,32 @@ function getRandomIntInclusive(min, max) {
 
 // Individual class
 class Individual {
-    constructor (length) {
+    // Ctor
+    constructor(length) {
         this.fitness = 0;
-        this.phrase = "";
         this.length = length;
-        for (var i = 0; i < length; i++) {
-            this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128)); //32-128
+        this.phrase = "";
+        for (let i = 0; i < this.length; i++) {
+            this.phrase = this.phrase + String.fromCharCode(getRandomIntInclusive(32, 128));
         }
     }
-    // Getters
+    
+    // Getter
     getGenotype() {
         return this.phrase;
     }
+    // Getter
     getFitness() {
         return this.fitness;
     }
-    // Setters
+    // Setter
     setGenotype(phrase) {
         this.phrase = phrase;
     }
+    // Setter
     setFitness(target) {
         this.fitness = 0;
-        for (var i = 0; i < this.length; i++) {
+        for (let i = 0; i < this.length; i++) {
             if (this.phrase.charAt(i) === target.charAt(i)) {
                 this.fitness += 1;
             }
@@ -67,50 +71,77 @@ class Individual {
 
 // Population class
 class Population {
+    // Ctor
     constructor (size, target) {
         this.target = target;
         this.size = size;
         this.individuals = [];
         this.matePool = [];
-        for (var i = 0; i < size; i++) {
-            this.individuals.push(new Individual(target.length));
-        }
     }
-    // Method
-    draw() {
-        for (var i = 0; i < this.size; i++) {
+    // Methods
+    addIndividual(newIndividual) {
+        this.individuals.push(newIndividual);
+    }
+    evaluate() {
+        for (let i = 0; i < this.size; i++) {
             this.individuals[i].setFitness(this.target);
         }
     }
     buildMatePool() {
-        for (var i = 0; i < this.size; i++) {
-            var n = Math.round(this.individuals[i].getFitness() * 100);
-            for (var j = 0; j < n; j++) {
+        for (let i = 0; i < this.size; i++) {
+            let n = Math.round(this.individuals[i].getFitness() * 100);
+            for (let j = 0; j < n; j++) {
                 this.matePool.push(this.individuals[i]);
             }
         }
     }
+    reproduce() {
+        for (let i = 0; i < this.size; i++) {
+            // Pick 2 parents
+            let a, b, child, midpoint;
+            while (true) {
+                // Index of parentA
+                a = getRandomIntInclusive(0, this.matePool.length - 1);
+                // Index of parentB
+                b = getRandomIntInclusive(0, this.matePool.length - 1);
+                // Be sure you have picked two unique parents
+                if (this.matePool[a].phrase === this.matePool[b].phrase) {
+                    continue;
+                }
+                else {
+                    break;
+                }
+            }
+            // Crossover
+            child = this.crossover(a, b);
+        }
+    }
+    crossover(a, b) {
+        let child = new Individual(this.target.length);
+        child.setGenotype("");
+        let midpoint = getRandomIntInclusive(0, this.target.length);
+        
+        for (let i = 0; i < this.target.length - 1; i++) {
+            if (i < midpoint) {
+                child.phrase = child.phrase + this.matePool[a].phrase.charAt(i);
+            }
+            else {
+                child.phrase = child.phrase + this.matePool[b].phrase.charAt(i);
+            }
+        }
+        return child;
+    }
 }
 
-// 1. Create a population of N elements, each with randomly generated genetic material.
-var population = new Population(10, "marios");
+var population = new Population(1000, "marios");
 
-/*
-// Print population (genotypes)
-for (var i = 0; i < population.size; i++) {
-    console.log(population.individuals[i].getGenotype());
+// Build population
+for (let i = 0; i < 1000; i++) {
+    population.addIndividual(new Individual(6));
 }
-*/
 
-// 2. Call the fitness function for each member of the population.
-population.draw();
+population.evaluate();
 
-/*
-// Print population (fitness values)
-for (var i = 0; i < population.size; i++) {
-    console.log(population.individuals[i].getFitness());
-}
-*/
-
-// 3. Build the mating pool.
 population.buildMatePool();
+
+population.reproduce();
