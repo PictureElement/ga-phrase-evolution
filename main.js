@@ -56,8 +56,12 @@ class Individual {
     setGenotype(phrase) {
         this.phrase = phrase;
     }
-    // Setter
-    setFitness(target) {
+    
+    
+    
+    
+    
+    setFitness(target) { //<----------------------------------------------- change to Fitness
         this.fitness = 0;
         for (let i = 0; i < this.length; i++) {
             if (this.phrase.charAt(i) === target.charAt(i)) {
@@ -66,26 +70,44 @@ class Individual {
         }
         // Fitness is a percentage
         this.fitness = this.fitness/target.length;
+        // Return fitness in order to compare it with the best global fitness
+        return this.fitness;
     }
 }
 
 // Population class
 class Population {
     // Ctor
-    constructor (size, target, mutationRate) {
+    constructor(size, target, mutationRate) {
         this.target = target;
         this.size = size;
         this.individuals = [];
         this.matePool = [];
         this.mutationRate = mutationRate;
+        this.bestFitness = 0;
+        this.bestIndividualIndex = 0;
+        this.totalGenerations = 0;
     }
     // Methods
     addIndividual(newIndividual) {
         this.individuals.push(newIndividual);
     }
     evaluate() {
+        let fitness = 0;
         for (let i = 0; i < this.size; i++) {
-            this.individuals[i].setFitness(this.target);
+            fitness = this.individuals[i].setFitness(this.target);
+            // Update best fitness
+            if (fitness > this.bestFitness) {
+                this.bestFitness = fitness;
+                this.bestIndividualIndex = i;
+            }
+        }
+        // Stopping criterion
+        if (this.bestFitness > 0.9) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
     buildMatePool() {
@@ -97,6 +119,7 @@ class Population {
         }
     }
     reproduce() {
+        // Create new generation
         for (let i = 0; i < this.size; i++) {
             // Pick 2 parents
             let a, b, child, midpoint;
@@ -120,6 +143,8 @@ class Population {
             // Overwrite the population with the new children
             this.individuals[i] = child;
         }
+        
+        this.totalGenerations += 1;
     }
     crossover(a, b) {
         let child = new Individual(this.target.length);
@@ -147,14 +172,31 @@ class Population {
     }
 }
 
-var population = new Population(1000, "marios", 0.01);
+const size = 1000;
+const target = "marios";
+const length = 6;
+const mutationRate = 0.01;
+
+// (size, target, mutation rate)
+var population = new Population(size, target, mutationRate);
 
 // Build population
-for (let i = 0; i < 1000; i++) {
-    population.addIndividual(new Individual(6));
+for (let i = 0; i < size; i++) {
+    population.addIndividual(new Individual(length));
 }
 
-// Loop until you find the solution
-population.evaluate();
-population.buildMatePool();
-population.reproduce();
+// Loop until you find the solution (or meet the criteria)
+while (true) {
+    if(population.evaluate()) {
+        break;
+    }
+    else {
+        population.buildMatePool();
+        population.reproduce();
+    }
+}
+
+console.log("Total Generation: " + population.totalGenerations);
+console.log("Best Fitness: " + population.bestFitness);
+let index = population.bestIndividualIndex;
+console.log("Best Phrase: " + population.individuals[index].phrase);
