@@ -72,11 +72,12 @@ class Individual {
 // Population class
 class Population {
     // Ctor
-    constructor (size, target) {
+    constructor (size, target, mutationRate) {
         this.target = target;
         this.size = size;
         this.individuals = [];
         this.matePool = [];
+        this.mutationRate = mutationRate;
     }
     // Methods
     addIndividual(newIndividual) {
@@ -114,6 +115,10 @@ class Population {
             }
             // Crossover
             child = this.crossover(a, b);
+            // Mutation
+            this.mutation(child);
+            // Overwrite the population with the new children
+            this.individuals[i] = child;
         }
     }
     crossover(a, b) {
@@ -121,7 +126,7 @@ class Population {
         child.setGenotype("");
         let midpoint = getRandomIntInclusive(0, this.target.length);
         
-        for (let i = 0; i < this.target.length - 1; i++) {
+        for (let i = 0; i < this.target.length; i++) {
             if (i < midpoint) {
                 child.phrase = child.phrase + this.matePool[a].phrase.charAt(i);
             }
@@ -131,17 +136,25 @@ class Population {
         }
         return child;
     }
+    mutation(individual) {
+        for (let i = 0; i < this.target.length; i++) {
+            // The block inside the conditional statement would be executed 1% of the time.
+            if(Math.random() < this.mutationRate) {
+                // replace char with a new random character
+                individual.phrase = individual.phrase.substr(0, i) + String.fromCharCode(getRandomIntInclusive(32, 128)) + individual.phrase.substr(i + 1);
+            }
+        }
+    }
 }
 
-var population = new Population(1000, "marios");
+var population = new Population(1000, "marios", 0.01);
 
 // Build population
 for (let i = 0; i < 1000; i++) {
     population.addIndividual(new Individual(6));
 }
 
+// Loop until you find the solution
 population.evaluate();
-
 population.buildMatePool();
-
 population.reproduce();
