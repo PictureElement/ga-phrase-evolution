@@ -78,7 +78,7 @@ class Individual {
 // Population class
 class Population {
     // Ctor
-    constructor(size, target, mutationRate, minFitnessValue) {
+    constructor(size, target, mutationRate, minFitness) {
         this.target = target;
         this.size = size;
         this.individuals = [];
@@ -88,7 +88,7 @@ class Population {
         this.bestIndividualIndex = 0;
         this.totalGenerations = 0;
         // Stopping criterion
-        this.minFitnessValue = minFitnessValue;
+        this.minFitness = minFitness;
     }
     // Methods
     addIndividual(newIndividual) {
@@ -105,7 +105,7 @@ class Population {
             }
         }
         // Stopping criterion
-        if (this.bestFitness > this.minFitnessValue) {
+        if (this.bestFitness > this.minFitness) {
             return true;
         }
         else {
@@ -174,33 +174,52 @@ class Population {
     }
 }
 
+/*
 const size = 1000;
 const target = "To be, or not to be";
 const length = target.length;
 const mutationRate = 0.01;
-const minFitnessValue = 0.6;
+const minFitness = 0.6;
+*/
 
-// (size, target, mutation rate)
-var population = new Population(size, target, mutationRate, minFitnessValue);
+$('form').on( "submit", function (e) {
 
-// Build population
-for (let i = 0; i < size; i++) {
-    population.addIndividual(new Individual(length));
-}
-
-// Loop until you find the solution (or meet the criteria)
-while (true) {
-    if(population.evaluate()) {
-        break;
+    var size = $('#populationSize').val();
+    var mutationRate = $('#mutationRate').val();
+    var minFitness = $('#minFitness').val();
+    var target = $('#target').val();
+    var length = target.length;
+    
+    //-------------------------------------------------
+    
+    // Create a new population 
+    var population = new Population(size, target, mutationRate, minFitness);
+    
+    // Build population
+    for (let i = 0; i < size; i++) {
+        population.addIndividual(new Individual(length));
     }
-    else {
-        population.buildMatePool();
-        population.reproduce();
+    
+    // Loop until you find the solution (or meet the criteria)
+    while (true) {
+        if(population.evaluate()) {
+            break;
+        }
+        else {
+            population.buildMatePool();
+            population.reproduce();
+        }
     }
-}
-
-// Print results
-console.log("Total Generation: " + population.totalGenerations);
-console.log("Best Fitness: " + population.bestFitness);
-let index = population.bestIndividualIndex;
-console.log("Best Phrase: " + population.individuals[index].phrase);
+    
+    // Print results
+    console.log("Total Generation: " + population.totalGenerations);
+    console.log("Best Fitness: " + population.bestFitness);
+    let index = population.bestIndividualIndex;
+    console.log("Best Phrase: " + population.individuals[index].phrase);
+    
+    // Any default action normally taken by the implementation will not occur
+    e.preventDefault();
+    
+    // Restore form element's default values
+    this.reset();
+})
