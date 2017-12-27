@@ -182,11 +182,11 @@ const mutationRate = 0.01;
 const minFitness = 0.6;
 */
 
-$('form').on( "submit", function (e) {
+$('#form-input').on( "submit", function (e) {
 
-    var size = $('#populationSize').val();
-    var mutationRate = $('#mutationRate').val();
-    var minFitness = $('#minFitness').val();
+    var size = $('#population-size').val();
+    var mutationRate = $('#mutation-rate').val();
+    var minFitness = $('#min-fitness').val();
     var target = $('#target').val();
     var length = target.length;
     
