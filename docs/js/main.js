@@ -26,10 +26,21 @@ c) Add child to the new population.
 */
 
 // Getting a random integer between two values, inclusive
-function getRandomIntInclusive(min, max) {
+function getRandomIntInclusive (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Sleep function
+function sleep (milliseconds) {
+    console.log("sleep");
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
 }
 
 // Individual class
@@ -78,7 +89,7 @@ class Individual {
 // Population class
 class Population {
     // Ctor
-    constructor(size, target, mutationRate, minFitnessValue) {
+    constructor(size, target, mutationRate, minFitness) {
         this.target = target;
         this.size = size;
         this.individuals = [];
@@ -88,7 +99,7 @@ class Population {
         this.bestIndividualIndex = 0;
         this.totalGenerations = 0;
         // Stopping criterion
-        this.minFitnessValue = minFitnessValue;
+        this.minFitness = minFitness;
     }
     // Methods
     addIndividual(newIndividual) {
@@ -105,7 +116,7 @@ class Population {
             }
         }
         // Stopping criterion
-        if (this.bestFitness > this.minFitnessValue) {
+        if (this.bestFitness > this.minFitness) {
             return true;
         }
         else {
@@ -174,33 +185,84 @@ class Population {
     }
 }
 
-const size = 1000;
-const target = "To be, or not to be";
-const length = target.length;
-const mutationRate = 0.01;
-const minFitnessValue = 0.6;
-
-// (size, target, mutation rate)
-var population = new Population(size, target, mutationRate, minFitnessValue);
-
-// Build population
-for (let i = 0; i < size; i++) {
-    population.addIndividual(new Individual(length));
+/*
+// Repeatedly run the anonymous function that updates the DOM, with a fixed time delay
+// between each call.
+// intervalId uniquely identifies the interval of setInterval().
+var intervalID;
+function myCallback(population) {
+    console.log(population.totalGenerations);
+    $('#total-generations').replaceWith(population.totalGenerations);
 }
+*/
 
-// Loop until you find the solution (or meet the criteria)
-while (true) {
-    if(population.evaluate()) {
-        break;
-    }
-    else {
-        population.buildMatePool();
-        population.reproduce();
-    }
-}
+$('#form-input').on( "submit", function (e) {
 
-// Print results
-console.log("Total Generation: " + population.totalGenerations);
-console.log("Best Fitness: " + population.bestFitness);
-let index = population.bestIndividualIndex;
-console.log("Best Phrase: " + population.individuals[index].phrase);
+    // Any default action normally taken by the implementation will not occur
+    e.preventDefault();
+    // number type
+    var size = Number($('#population-size').val());
+    // number type
+    var mutationRate = Number($('#mutation-rate').val());
+    // number type
+    var minFitness = Number($('#min-fitness').val());
+    // string type
+    var target = $('#target').val();
+    var length = target.length;
+    
+    //-------------------------------------------------
+    
+    // Create a new population 
+    var population = new Population(size, target, mutationRate, minFitness);
+    
+    //-------------------------------------------------
+    
+    // Build population
+    for (let i = 0; i < size; i++) {
+        population.addIndividual(new Individual(length));
+    }
+    
+    //-------------------------------------------------
+    
+    // Loop until you find the solution (or meet the criterion)    
+    var totalGenerationsHTML = $('#total-generations');
+    var bestPhraseHTML = $('#best-phrase');
+    /*
+    while (true) {
+        if(population.evaluate()) {
+            break;
+        }
+        else {
+            population.buildMatePool();
+            population.reproduce();
+            console.log(population.totalGenerations);
+            element.append(population.totalGenerations);
+            sleep(500);
+        }
+    }
+    */
+    function startLoop() {
+        if(population.evaluate() === false) {
+            population.buildMatePool();
+            population.reproduce();
+            console.log(population.totalGenerations);
+            totalGenerationsHTML.val(population.totalGenerations);
+            let index = population.bestIndividualIndex;
+            console.log("Best Phrase: " + population.individuals[index].phrase);
+            bestPhraseHTML.val(population.individuals[index].phrase);
+            setTimeout(startLoop, 500);
+        }
+        else {
+            console.log(population.totalGenerations);
+            totalGenerationsHTML.val(population.totalGenerations);
+            let index = population.bestIndividualIndex;
+            console.log("Best Phrase: " + population.individuals[index].phrase);
+            bestPhraseHTML.val(population.individuals[index].phrase);
+        }
+    }
+    
+    startLoop();
+    
+    // Restore form element's default values
+    //this.reset();
+});
