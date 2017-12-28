@@ -26,10 +26,21 @@ c) Add child to the new population.
 */
 
 // Getting a random integer between two values, inclusive
-function getRandomIntInclusive(min, max) {
+function getRandomIntInclusive (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Sleep function
+function sleep (milliseconds) {
+    console.log("sleep");
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
 }
 
 // Individual class
@@ -175,18 +186,27 @@ class Population {
 }
 
 /*
-const size = 1000;
-const target = "To be, or not to be";
-const length = target.length;
-const mutationRate = 0.01;
-const minFitness = 0.6;
+// Repeatedly run the anonymous function that updates the DOM, with a fixed time delay
+// between each call.
+// intervalId uniquely identifies the interval of setInterval().
+var intervalID;
+function myCallback(population) {
+    console.log(population.totalGenerations);
+    $('#total-generations').replaceWith(population.totalGenerations);
+}
 */
 
 $('#form-input').on( "submit", function (e) {
 
-    var size = $('#population-size').val();
-    var mutationRate = $('#mutation-rate').val();
-    var minFitness = $('#min-fitness').val();
+    // Any default action normally taken by the implementation will not occur
+    e.preventDefault();
+    // number type
+    var size = Number($('#population-size').val());
+    // number type
+    var mutationRate = Number($('#mutation-rate').val());
+    // number type
+    var minFitness = Number($('#min-fitness').val());
+    // string type
     var target = $('#target').val();
     var length = target.length;
     
@@ -195,12 +215,19 @@ $('#form-input').on( "submit", function (e) {
     // Create a new population 
     var population = new Population(size, target, mutationRate, minFitness);
     
+    //-------------------------------------------------
+    
     // Build population
     for (let i = 0; i < size; i++) {
         population.addIndividual(new Individual(length));
     }
     
-    // Loop until you find the solution (or meet the criteria)
+    //-------------------------------------------------
+    
+    // Loop until you find the solution (or meet the criterion)    
+    var totalGenerationsHTML = $('#total-generations');
+    var bestPhraseHTML = $('#best-phrase');
+    /*
     while (true) {
         if(population.evaluate()) {
             break;
@@ -208,18 +235,34 @@ $('#form-input').on( "submit", function (e) {
         else {
             population.buildMatePool();
             population.reproduce();
+            console.log(population.totalGenerations);
+            element.append(population.totalGenerations);
+            sleep(500);
+        }
+    }
+    */
+    function startLoop() {
+        if(population.evaluate() === false) {
+            population.buildMatePool();
+            population.reproduce();
+            console.log(population.totalGenerations);
+            totalGenerationsHTML.val(population.totalGenerations);
+            let index = population.bestIndividualIndex;
+            console.log("Best Phrase: " + population.individuals[index].phrase);
+            bestPhraseHTML.val(population.individuals[index].phrase);
+            setTimeout(startLoop, 500);
+        }
+        else {
+            console.log(population.totalGenerations);
+            totalGenerationsHTML.val(population.totalGenerations);
+            let index = population.bestIndividualIndex;
+            console.log("Best Phrase: " + population.individuals[index].phrase);
+            bestPhraseHTML.val(population.individuals[index].phrase);
         }
     }
     
-    // Print results
-    console.log("Total Generation: " + population.totalGenerations);
-    console.log("Best Fitness: " + population.bestFitness);
-    let index = population.bestIndividualIndex;
-    console.log("Best Phrase: " + population.individuals[index].phrase);
-    
-    // Any default action normally taken by the implementation will not occur
-    e.preventDefault();
+    startLoop();
     
     // Restore form element's default values
-    this.reset();
-})
+    //this.reset();
+});
