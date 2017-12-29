@@ -25,6 +25,8 @@ c) Add child to the new population.
 5. Replace the old population with the new population and return to Step 2.
 */
 
+"use strict";
+
 // Getting a random integer between two values, inclusive
 function getRandomIntInclusive (min, max) {
   min = Math.ceil(min);
@@ -93,6 +95,7 @@ class Population {
         this.target = target;
         this.size = size;
         this.individuals = [];
+        // contains phrases (strings)
         this.matePool = [];
         this.mutationRate = mutationRate;
         this.bestFitness = 0;
@@ -127,7 +130,7 @@ class Population {
         for (let i = 0; i < this.size; i++) {
             let n = Math.round(this.individuals[i].getFitness() * 100);
             for (let j = 0; j < n; j++) {
-                this.matePool.push(this.individuals[i]);
+                this.matePool.push(this.individuals[i].phrase);
             }
         }
     }
@@ -141,8 +144,8 @@ class Population {
                 a = getRandomIntInclusive(0, this.matePool.length - 1);
                 // Index of parentB
                 b = getRandomIntInclusive(0, this.matePool.length - 1);
-                // Be sure you have picked two unique parents
-                if (this.matePool[a].phrase === this.matePool[b].phrase) {
+                // Be sure you have picked two unique parents (phrases)
+                if (this.matePool[a] === this.matePool[b]) {
                     continue;
                 }
                 else {
@@ -162,14 +165,14 @@ class Population {
     crossover(a, b) {
         let child = new Individual(this.target.length);
         child.setGenotype("");
-        let midpoint = getRandomIntInclusive(0, this.target.length);
+        let midpoint = getRandomIntInclusive(0, this.target.length-1);
         
         for (let i = 0; i < this.target.length; i++) {
             if (i < midpoint) {
-                child.phrase = child.phrase + this.matePool[a].phrase.charAt(i);
+                child.phrase = child.phrase + this.matePool[a].charAt(i);
             }
             else {
-                child.phrase = child.phrase + this.matePool[b].phrase.charAt(i);
+                child.phrase = child.phrase + this.matePool[b].charAt(i);
             }
         }
         return child;
@@ -182,6 +185,8 @@ class Population {
                 individual.phrase = individual.phrase.substr(0, i) + String.fromCharCode(getRandomIntInclusive(32, 128)) + individual.phrase.substr(i + 1);
             }
         }
+        // empty mate pool
+        this.matePool = [];
     }
 }
 
@@ -227,21 +232,36 @@ $('#form-input').on( "submit", function (e) {
     var totalGenerationsHTML = $('#total-generations');
     var bestPhraseHTML = $('#best-phrase');
     var bestFitnessHTML = $('#best-fitness');
-    var phrasesHTML = $('#phrases');
-
+    var processingHTML = $('#processing');
+    
+    //-------------------------------------------------
+        
+    while (!population.evaluate()) {
+        // Processing
+        population.buildMatePool();
+        population.reproduce();
+    }
+    
+    // Print
+    totalGenerationsHTML.val(population.totalGenerations);
+    bestFitnessHTML.val(population.bestFitness);
+    bestPhraseHTML.val(population.bestPhrase);
+    
+    /*
     // Loop until you find the solution (or meet the criterion)
-    function startLoop() {
+    function startLoop(loopCounter) {
         if(population.evaluate() === false) {
             // Print results for each generation
+            //processingHTML.prepend("=============== " + "GENERATION " + loopCounter + " ===============\n");
             totalGenerationsHTML.val(population.totalGenerations);
             bestFitnessHTML.val(population.bestFitness);
             bestPhraseHTML.val(population.bestPhrase);
             
             function printPopulation(count, size) {
                 if (count < size) {
-                    phrasesHTML.prepend(population.individuals[count].phrase + "\n");
+                    processingHTML.prepend(population.individuals[count].phrase + "\n");
                     count ++;
-                    setTimeout(printPopulation, 0, count, size);
+                    setTimeout(printPopulation, 10, count, size);
                 }
                 else {
                     // Reset counter
@@ -252,34 +272,44 @@ $('#form-input').on( "submit", function (e) {
             // Passing a parameter to the callback function is supported only on modern browsers
             let count = 0;
             setTimeout(printPopulation, 10000, count, population.size);
+            console.log("test");
 
             // Processing
             population.buildMatePool();
             population.reproduce();
         }
         else {
-            /*
             // Print final results
+            //processingHTML.prepend("=============== " + "GENERATION " + loopCounter + " ===============\n");
             totalGenerationsHTML.val(population.totalGenerations);
             bestFitnessHTML.val(population.bestFitness);
             bestPhraseHTML.val(population.bestPhrase);
-            let count = 0;
-            function printPopulation() {
-                if (count < population.size) {
-                    phrasesHTML.prepend(population.individuals[count].phrase + "<-----------------" + "\n");
+            function printPopulation(count, size) {
+                if (count < size) {
+                    processingHTML.prepend(population.individuals[count].phrase + "<--------------" + "\n");
                     count ++;
-                    setTimeout(printPopulation, 100);
+                    setTimeout(printPopulation, 0, count, size);
+                }
+                else {
+                    // Reset counter
+                    count = 0;
                 }
             }
-            printPopulation();
-            */
+            // Passing a parameter to the callback function is supported only on modern browsers
+            let count = 0;
+            setTimeout(printPopulation, 0, count, population.size);
+            
             return;
         }
         // The setTimeout below schedules the next call at the end of the 
         // current one
-        setTimeout(startLoop, 15000);
+        loopCounter ++; 
+        setTimeout(startLoop, 1000, loopCounter);
     }
-    startLoop();
+    
+    let loopCounter = 0;
+    startLoop(loopCounter);
     // Restore form element's default values
     //this.reset();
+    */
 });
