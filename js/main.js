@@ -74,7 +74,7 @@ class Individual {
     
     
     
-    setFitness(target) { //<----------------------------------------------- change to Fitness
+    fitnessFunct(target) {
         this.fitness = 0;
         for (let i = 0; i < this.length; i++) {
             if (this.phrase.charAt(i) === target.charAt(i)) {
@@ -105,13 +105,17 @@ class Population {
         this.minFitness = minFitness;
     }
     // Methods
+    clearMatePool () {
+        this.matePool = [];
+    }
+    
     addIndividual(newIndividual) {
         this.individuals.push(newIndividual);
     }
     evaluate() {
         let fitness = 0;
         for (let i = 0; i < this.size; i++) {
-            fitness = this.individuals[i].setFitness(this.target);
+            fitness = this.individuals[i].fitnessFunct(this.target);
             // Update best fitness and best phrase
             if (fitness > this.bestFitness) {
                 this.bestFitness = fitness;
@@ -119,14 +123,17 @@ class Population {
             }
         }
         // Stopping criterion
-        if (this.bestFitness > this.minFitness) {
+        if (this.bestFitness < this.minFitness) {
+            // continue
             return true;
         }
         else {
+            // stop
             return false;
         }
     }
     buildMatePool() {
+        console.log("matepool size = " + this.matePool.length);
         for (let i = 0; i < this.size; i++) {
             let n = Math.round(this.individuals[i].getFitness() * 100);
             for (let j = 0; j < n; j++) {
@@ -146,9 +153,11 @@ class Population {
                 b = getRandomIntInclusive(0, this.matePool.length - 1);
                 // Be sure you have picked two unique parents (phrases)
                 if (this.matePool[a] === this.matePool[b]) {
+                    console.log("foo1: " + this.matePool[a] + " | " + this.matePool[b]);
                     continue;
                 }
                 else {
+                    console.log("foo2");
                     break;
                 }
             }
@@ -156,10 +165,10 @@ class Population {
             child = this.crossover(a, b);
             // Mutation
             this.mutation(child);
-            // Overwrite the population with the new children
+            // The new children define the population
             this.individuals[i] = child;
+            console.log("foo3");
         }
-        
         this.totalGenerations += 1;
     }
     crossover(a, b) {
@@ -185,8 +194,6 @@ class Population {
                 individual.phrase = individual.phrase.substr(0, i) + String.fromCharCode(getRandomIntInclusive(32, 128)) + individual.phrase.substr(i + 1);
             }
         }
-        // empty mate pool
-        this.matePool = [];
     }
 }
 
@@ -235,11 +242,15 @@ $('#form-input').on( "submit", function (e) {
     var processingHTML = $('#processing');
     
     //-------------------------------------------------
-        
-    while (!population.evaluate()) {
+    
+    
+    var condition = population.evaluate();
+    while (condition) {
         // Processing
         population.buildMatePool();
         population.reproduce();
+        population.clearMatePool();
+        condition = population.evaluate();
     }
     
     // Print
