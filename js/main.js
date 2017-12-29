@@ -133,7 +133,6 @@ class Population {
         }
     }
     buildMatePool() {
-        console.log("matepool size = " + this.matePool.length);
         for (let i = 0; i < this.size; i++) {
             let n = Math.round(this.individuals[i].getFitness() * 100);
             for (let j = 0; j < n; j++) {
@@ -153,11 +152,9 @@ class Population {
                 b = getRandomIntInclusive(0, this.matePool.length - 1);
                 // Be sure you have picked two unique parents (phrases)
                 if (this.matePool[a] === this.matePool[b]) {
-                    console.log("foo1: " + this.matePool[a] + " | " + this.matePool[b]);
                     continue;
                 }
                 else {
-                    console.log("foo2");
                     break;
                 }
             }
@@ -167,7 +164,6 @@ class Population {
             this.mutation(child);
             // The new children define the population
             this.individuals[i] = child;
-            console.log("foo3");
         }
         this.totalGenerations += 1;
     }
