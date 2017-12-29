@@ -224,37 +224,28 @@ $('#form-input').on( "submit", function (e) {
     
     //-------------------------------------------------
     
-    // Loop until you find the solution (or meet the criterion)    
     var totalGenerationsHTML = $('#total-generations');
     var bestPhraseHTML = $('#best-phrase');
-    /*
-    while (true) {
-        if(population.evaluate()) {
-            break;
-        }
-        else {
-            population.buildMatePool();
-            population.reproduce();
-            console.log(population.totalGenerations);
-            element.append(population.totalGenerations);
-            sleep(500);
-        }
-    }
-    */
+    var bestFitnessHTML = $('#best-fitness');
+    // Loop until you find the solution (or meet the criterion)
     function startLoop() {
         if(population.evaluate() === false) {
             population.buildMatePool();
             population.reproduce();
-            console.log(population.totalGenerations);
+            // Print results for each generation
             totalGenerationsHTML.val(population.totalGenerations);
+            bestFitnessHTML.val(population.bestFitness);
             let index = population.bestIndividualIndex;
-            console.log("Best Phrase: " + population.individuals[index].phrase);
             bestPhraseHTML.val(population.individuals[index].phrase);
+            // The setTimeout below schedules the next call at the end of the 
+            // current one
             setTimeout(startLoop, 500);
         }
         else {
+            // Print final results
             console.log(population.totalGenerations);
             totalGenerationsHTML.val(population.totalGenerations);
+            bestFitnessHTML.val(population.bestFitness);
             let index = population.bestIndividualIndex;
             console.log("Best Phrase: " + population.individuals[index].phrase);
             bestPhraseHTML.val(population.individuals[index].phrase);
