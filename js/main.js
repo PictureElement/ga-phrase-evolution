@@ -96,7 +96,7 @@ class Population {
         this.matePool = [];
         this.mutationRate = mutationRate;
         this.bestFitness = 0;
-        this.bestIndividualIndex = 0;
+        this.bestPhrase = "";
         this.totalGenerations = 0;
         // Stopping criterion
         this.minFitness = minFitness;
@@ -109,10 +109,10 @@ class Population {
         let fitness = 0;
         for (let i = 0; i < this.size; i++) {
             fitness = this.individuals[i].setFitness(this.target);
-            // Update best fitness
+            // Update best fitness and best phrase
             if (fitness > this.bestFitness) {
                 this.bestFitness = fitness;
-                this.bestIndividualIndex = i;
+                this.bestPhrase = this.individuals[i].getGenotype();
             }
         }
         // Stopping criterion
@@ -227,33 +227,59 @@ $('#form-input').on( "submit", function (e) {
     var totalGenerationsHTML = $('#total-generations');
     var bestPhraseHTML = $('#best-phrase');
     var bestFitnessHTML = $('#best-fitness');
+    var phrasesHTML = $('#phrases');
+
     // Loop until you find the solution (or meet the criterion)
     function startLoop() {
         if(population.evaluate() === false) {
-            population.buildMatePool();
-            population.reproduce();
             // Print results for each generation
             totalGenerationsHTML.val(population.totalGenerations);
             bestFitnessHTML.val(population.bestFitness);
-            let index = population.bestIndividualIndex;
-            bestPhraseHTML.val(population.individuals[index].phrase);
-            // The setTimeout below schedules the next call at the end of the 
-            // current one
-            setTimeout(startLoop, 500);
+            bestPhraseHTML.val(population.bestPhrase);
+            
+            function printPopulation(count, size) {
+                if (count < size) {
+                    phrasesHTML.prepend(population.individuals[count].phrase + "\n");
+                    count ++;
+                    setTimeout(printPopulation, 0, count, size);
+                }
+                else {
+                    // Reset counter
+                    count = 0;
+                }
+            }
+            
+            // Passing a parameter to the callback function is supported only on modern browsers
+            let count = 0;
+            setTimeout(printPopulation, 10000, count, population.size);
+
+            // Processing
+            population.buildMatePool();
+            population.reproduce();
         }
         else {
+            /*
             // Print final results
-            console.log(population.totalGenerations);
             totalGenerationsHTML.val(population.totalGenerations);
             bestFitnessHTML.val(population.bestFitness);
-            let index = population.bestIndividualIndex;
-            console.log("Best Phrase: " + population.individuals[index].phrase);
-            bestPhraseHTML.val(population.individuals[index].phrase);
+            bestPhraseHTML.val(population.bestPhrase);
+            let count = 0;
+            function printPopulation() {
+                if (count < population.size) {
+                    phrasesHTML.prepend(population.individuals[count].phrase + "<-----------------" + "\n");
+                    count ++;
+                    setTimeout(printPopulation, 100);
+                }
+            }
+            printPopulation();
+            */
+            return;
         }
+        // The setTimeout below schedules the next call at the end of the 
+        // current one
+        setTimeout(startLoop, 15000);
     }
-    
     startLoop();
-    
     // Restore form element's default values
     //this.reset();
 });
