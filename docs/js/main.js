@@ -33,7 +33,7 @@ c) Add child to the new population.
 5. Replace the old population with the new population and return to Step 2.
 */
 
-$('#form-input').on( "submit", function (e) {
+$('#form-input').on("submit", function(e) {
 
   // Restore form element's default values
   //this.reset();
@@ -48,22 +48,52 @@ $('#form-input').on( "submit", function (e) {
   var minFitness = Number($('#min-fitness').val());
   // string type
   var target = $('#target').val();
+  // number type
+  var animationDelay = Number($('#animation-delay').val());
 
   // DOM elements
   var $totalGenerationsHTML = $('#total-generations');
   var $bestPhraseHTML = $('#best-phrase');
   var $bestFitnessHTML = $('#best-fitness');
   var $processingHTML = $('#processing');
-    
+  var $loadWrapHTML = $('#load-wrap > div');
+  var $l11 = $('.l-11');
+  var $l12 = $('.l-12');
+  var $l13 = $('.l-13');
+
   // Create a new worker. URI relative to the current document URI
-  var myWorker = new Worker('/js/worker.js'); 
+  var myWorker = new Worker('/js/worker.js');
 
   // Post message to the worker
   myWorker.postMessage([size, mutationRate, minFitness, target]);
   console.log('Message posted to worker');
+  // Show loading animation
+  $loadWrapHTML.toggleClass("load-6");
+  $l11.show();
+  $l12.show();
+  $l13.show();
 
   // Respond to the message sent back from the worker
   myWorker.onmessage = function(e) {
-    console.log(e.data);
+    console.log('Message received from worker script');
+    
+    function updateDOM(element, index) {
+      setTimeout(function() {
+        $processingHTML.prepend(element.bestPhrase + "\n");
+        $bestFitnessHTML.empty().append(element.bestFitness);
+        $bestPhraseHTML.empty().append(element.bestPhrase);
+        $totalGenerationsHTML.empty().append(element.generationCount);
+      }, animationDelay * index);
+    }
+
+    e.data.forEach(function(element, index) {
+      updateDOM(element, index);
+    });
+
+    // Hide loading animation
+    $loadWrapHTML.toggleClass("load-6");
+    $l11.hide();
+    $l12.hide();
+    $l13.hide();
   }
 });

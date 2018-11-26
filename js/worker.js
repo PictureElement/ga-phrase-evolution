@@ -12,29 +12,20 @@ onmessage = function(e) {
   // Initialize population 
   var population = new Population(size, target, mutationRate, minFitness);
   
-  var currentGenerationDetails = {};
+  var generationDetails = [];
 
   while (population.evaluate()) {
     // Current generation details
-    currentGenerationDetails.generationCount = population.getGenerationCount;
-    currentGenerationDetails.bestFitness = population.getBestFitness;
-    currentGenerationDetails.bestPhrase = population.getBestPhrase;
-    currentGenerationDetails.individuals = population.getIndividuals;
-
-    console.log('Posting message back to main script');
-    postMessage(currentGenerationDetails);
-
+    generationDetails.push({generationCount: population.getGenerationCount, bestFitness: population.getBestFitness, bestPhrase: population.getBestPhrase, individuals: population.getIndividuals});
+    
     // Build next generation
     population.buildMatePool();
     population.reproduce();
     population.clearMatePool();
   }
 
-  currentGenerationDetails.generationCount = population.getGenerationCount;
-  currentGenerationDetails.bestFitness = population.getBestFitness;
-  currentGenerationDetails.bestPhrase = population.getBestPhrase;
-  currentGenerationDetails.individuals = population.getIndividuals;
+  generationDetails.push({generationCount: population.getGenerationCount, bestFitness: population.getBestFitness, bestPhrase: population.getBestPhrase, individuals: population.getIndividuals});
 
   console.log('Posting message back to main script');
-  postMessage(currentGenerationDetails);
+  postMessage(generationDetails);
 } 
