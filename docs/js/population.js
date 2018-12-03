@@ -1,10 +1,12 @@
 "use strict";
 
-// Getting a random integer between two values, inclusive
+// Get a random integer between two values, inclusive
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+  
+  // The maximum is inclusive and the minimum is inclusive 
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // Sleep function
@@ -18,11 +20,9 @@ function sleep (milliseconds) {
   }
 }
 
-// Individual class
+// "Individual" class
 class Individual {
-  /*
-   * Constructor
-   */
+  // Constructor
   constructor(length) {
     this.fitness = 0;
     this.length = length;
@@ -32,9 +32,7 @@ class Individual {
     }
   }
     
-  /*
-   * Getters
-   */ 
+  // Getters
   getGenotype() {
     return this.phrase;
   }
@@ -43,16 +41,12 @@ class Individual {
     return this.fitness;
   }
 
-  /*
-   * Setters
-   */ 
+  // Setters
   setGenotype(phrase) {
     this.phrase = phrase;
   }
   
-  /*
-   * Methods
-   */ 
+  // Methods
   fitnessFunct(target) {
     let score = 0;
     for (let i = 0; i < this.length; i++) {
@@ -60,8 +54,10 @@ class Individual {
         score += 1;
       }
     }
+    
     // Fitness is a percentage
     this.fitness = score/target.length;
+    
     // Return fitness in order to compare it with the best global fitness
     return this.fitness;
   }
@@ -69,27 +65,25 @@ class Individual {
 
 // Population class
 class Population {
-  /*
-   * Constuctor
-   */
+  // Constuctor
   constructor(size, target, mutationRate, minFitness) {
     this.target = target;
     this.size = size;
     this.individuals = [];
     this.setIndividuals = this.target.length;
-    // contains phrases (strings)
+    
+    // Contains phrases (strings)
     this.matePool = [];
     this.mutationRate = mutationRate;
     this.bestFitness = 0;
     this.bestPhrase = "";
-    this.generationCount = 0;
+    this.generationCount = 1;
+    
     // Stopping criterion
     this.minFitness = minFitness;
   }
   
-  /*
-   * Getters
-   */
+  // Getters
   get getBestFitness() {
     return this.bestFitness;
   }
@@ -106,24 +100,14 @@ class Population {
     return this.individuals;
   }
 
-  /*
-   * Setters
-   */
+  // Setters
   set setIndividuals(length) {
     for (let i = 0; i < this.size; i++) {
       this.individuals.push(new Individual(length));
     }
   }
 
-  /*
-  addIndividual(newIndividual) {
-    this.individuals.push(newIndividual);
-  }
-  */
-
-  /*
-   * Methods
-   */
+  // Methods
   clearMatePool () {
     this.matePool = [];
   }
@@ -132,19 +116,21 @@ class Population {
     let fitness = 0;
     for (let i = 0; i < this.size; i++) {
       fitness = this.individuals[i].fitnessFunct(this.target);
+      
       // Update best fitness and best phrase
       if (fitness > this.bestFitness) {
         this.bestFitness = fitness;
         this.bestPhrase = this.individuals[i].getGenotype();
       }
     }
+    
     // Stopping criterion
     if (this.bestFitness < this.minFitness) {
-      // continue
+      // Continue
       return true;
     }
     else {
-      // stop
+      // Stop
       return false;
     }
   }
@@ -161,13 +147,16 @@ class Population {
   reproduce() {
     // Create new generation
     for (let i = 0; i < this.size; i++) {
+      
       // Pick 2 parents
       let a, b, child, midpoint;
       while (true) {
-        // Index of parentA
+        // Parent A
         a = getRandomIntInclusive(0, this.matePool.length - 1);
-        // Index of parentB
+        
+        // Parent B
         b = getRandomIntInclusive(0, this.matePool.length - 1);
+        
         // Be sure you have picked two unique parents (phrases)
         if (this.matePool[a] === this.matePool[b]) {
           continue;
@@ -176,11 +165,14 @@ class Population {
           break;
         }
       }
+      
       // Crossover
       child = this.crossover(a, b);
-      // Mutation
+      
+      // Mutate
       this.mutation(child);
-      // The new children define the population
+      
+      // The new child is part of the population
       this.individuals[i] = child;
     }
     this.generationCount += 1;
@@ -204,10 +196,15 @@ class Population {
 
   mutation(individual) {
     for (let i = 0; i < this.target.length; i++) {
-      // The block inside the conditional statement would be executed (mutationRate)% of the time.
+      /*
+       * The block inside the conditional statement would be executed 
+       * (mutationRate)% of the time.
+       */
       if((Math.random() * 100) < this.mutationRate) {
-        // replace char with a new random character
-        individual.phrase = individual.phrase.substr(0, i) + String.fromCharCode(getRandomIntInclusive(32, 126)) + individual.phrase.substr(i + 1);
+        // Replace char with a new random character
+        individual.phrase = individual.phrase.substr(0, i) + 
+        String.fromCharCode(getRandomIntInclusive(32, 126)) + 
+        individual.phrase.substr(i + 1);
       }
     }
   }

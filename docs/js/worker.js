@@ -18,8 +18,10 @@ onmessage = function(e) {
     // Current generation details
     generationDetails.push({generationCount: population.getGenerationCount, bestFitness: population.getBestFitness, bestPhrase: population.getBestPhrase, individuals: population.getIndividuals});
     
-    // Build next generation
+    // Select
     population.buildMatePool();
+    
+    // Reproduce and Mutate
     population.reproduce();
     population.clearMatePool();
   }
@@ -28,4 +30,4 @@ onmessage = function(e) {
 
   console.log('Posting message back to main script');
   postMessage(generationDetails);
-} 
+}
