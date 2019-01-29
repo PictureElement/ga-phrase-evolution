@@ -98,7 +98,7 @@ $myForm.on("submit", function(e) {
       animationDelay = Number($('#animation-delay').val());
 
       // Create a new worker (URI relative to the current document URI)
-      myWorker = new Worker('/js/worker.js');
+      myWorker = new Worker('js/worker.js');
 
       // Post message to the worker
       myWorker.postMessage([size, mutationRate, minFitness, target]);
